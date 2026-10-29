@@ -1,0 +1,74 @@
+<UserControl x:Class="MargPos.Desktop.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <Style x:Key="StatValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="34" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,6,0,0" />
+        </Style>
+        <Style x:Key="StatCard" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Width" Value="210" />
+            <Setter Property="Margin" Value="0,0,16,16" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <Border Style="{StaticResource ErrorBanner}"
+                    Visibility="{Binding ErrorMessage, Converter={StaticResource HasValueToVisibility}}">
+                <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" />
+            </Border>
+
+            <WrapPanel>
+                <Border Style="{StaticResource StatCard}">
+                    <StackPanel>
+                        <TextBlock Text="Active items" Style="{StaticResource Muted}" />
+                        <TextBlock Text="{Binding Summary.ActiveItems, FallbackValue=–}" Style="{StaticResource StatValue}" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatCard}">
+                    <StackPanel>
+                        <TextBlock Text="Low stock items" Style="{StaticResource Muted}" />
+                        <TextBlock Text="{Binding Summary.LowStockItems, FallbackValue=–}" Style="{StaticResource StatValue}"
+                                   Foreground="{DynamicResource SystemFillColorCriticalBrush}" />
+                        <TextBlock Text="At or below reorder level" Style="{StaticResource Muted}" FontSize="12" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatCard}">
+                    <StackPanel>
+                        <TextBlock Text="Batches near expiry" Style="{StaticResource Muted}" />
+                        <TextBlock Text="{Binding Summary.NearExpiryBatches, FallbackValue=–}" Style="{StaticResource StatValue}"
+                                   Foreground="{DynamicResource SystemFillColorCautionBrush}" />
+                        <TextBlock Text="In stock, expiring within 90 days" Style="{StaticResource Muted}" FontSize="12" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatCard}">
+                    <StackPanel>
+                        <TextBlock Text="Customers" Style="{StaticResource Muted}" />
+                        <TextBlock Text="{Binding Summary.Customers, FallbackValue=–}" Style="{StaticResource StatValue}" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatCard}">
+                    <StackPanel>
+                        <TextBlock Text="Suppliers" Style="{StaticResource Muted}" />
+                        <TextBlock Text="{Binding Summary.Suppliers, FallbackValue=–}" Style="{StaticResource StatValue}" />
+                    </StackPanel>
+                </Border>
+            </WrapPanel>
+
+            <Border Style="{StaticResource Card}" MaxWidth="700" HorizontalAlignment="Left" Margin="0,8,0,0">
+                <StackPanel>
+                    <TextBlock Text="Getting started" Style="{StaticResource SectionTitle}" />
+                    <TextBlock TextWrapping="Wrap" LineHeight="22">
+                        1. Add your suppliers under <Bold>Suppliers</Bold>.<LineBreak />
+                        2. Add items under <Bold>Items &amp; Stock</Bold>. Tick <Italic>Batch tracked</Italic> for medicines,
+                        then add each batch with its expiry and opening quantity.<LineBreak />
+                        3. Add cashier and manager accounts under <Bold>Users</Bold> (admins only).<LineBreak />
+                        Shortcuts on every list: F2 new · Enter edit · Del deactivate · F5 refresh · Ctrl+F search.
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

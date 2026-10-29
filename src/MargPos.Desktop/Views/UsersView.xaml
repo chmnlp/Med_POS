@@ -1,0 +1,42 @@
+<UserControl x:Class="MargPos.Desktop.Views.UsersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Margin="0,0,0,12">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Content="New user" Tag="&#xE710;" ContentTemplate="{StaticResource IconContent}"
+                        Style="{DynamicResource AccentButtonStyle}" Command="{Binding NewCommand}" />
+                <Button Content="Edit" Tag="&#xE70F;" ContentTemplate="{StaticResource IconContent}" Margin="8,0,0,0"
+                        Command="{Binding EditCommand}" />
+                <Button Content="Reset password" Tag="&#xE72E;" ContentTemplate="{StaticResource IconContent}" Margin="8,0,0,0"
+                        Command="{Binding ResetPasswordCommand}" />
+                <Button Content="Refresh" Tag="&#xE72C;" ContentTemplate="{StaticResource IconContent}" Margin="8,0,0,0"
+                        Command="{Binding RefreshCommand}" />
+            </StackPanel>
+            <TextBlock Style="{StaticResource Muted}" TextWrapping="Wrap"
+                       Text="Cashiers bill and manage customers. Managers also manage items, stock and suppliers. Admins also manage users." />
+        </DockPanel>
+
+        <Border Grid.Row="1" Style="{StaticResource ErrorBanner}"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource HasValueToVisibility}}">
+            <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" />
+        </Border>
+
+        <DataGrid Grid.Row="2" x:Name="ListGrid" ItemsSource="{Binding Users}" SelectedItem="{Binding Selected}"
+                  AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single" HeadersVisibility="Column"
+                  CanUserAddRows="False" CanUserDeleteRows="False" MouseDoubleClick="OnDoubleClick">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="*" />
+                <DataGridTextColumn Header="Full name" Binding="{Binding FullName}" Width="2*" />
+                <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="120" />
+                <DataGridTextColumn Header="" Width="80" ElementStyle="{StaticResource InactiveCell}" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

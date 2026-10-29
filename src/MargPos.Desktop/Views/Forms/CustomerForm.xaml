@@ -1,0 +1,62 @@
+<UserControl x:Class="MargPos.Desktop.Views.Forms.CustomerForm"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:MargPos.Desktop.ViewModels"
+             Width="560">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
+            <TextBlock Text="Name *" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding Name}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="0">
+            <TextBlock Text="Mobile" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding Phone}" />
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="2">
+            <TextBlock Text="Customer type (price list)" Style="{StaticResource FieldLabel}" />
+            <ComboBox ItemsSource="{x:Static vm:Choices.CustomerTypes}" SelectedItem="{Binding Type}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.Column="0">
+            <TextBlock Text="GSTIN (for B2B invoices)" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding Gstin}" CharacterCasing="Upper" MaxLength="15" />
+        </StackPanel>
+        <StackPanel Grid.Row="2" Grid.Column="2">
+            <TextBlock Text="Email" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding Email}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="3">
+            <TextBlock Text="Address" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding Address}" AcceptsReturn="True" TextWrapping="Wrap" Height="60" VerticalScrollBarVisibility="Auto" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="4" Grid.Column="0">
+            <TextBlock Text="Credit limit (0 = cash only)" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding CreditLimit, StringFormat=0.##, ValidatesOnExceptions=True}" />
+        </StackPanel>
+        <StackPanel Grid.Row="4" Grid.Column="2">
+            <TextBlock Text="Opening balance (+ customer owes)" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding OpeningBalance, StringFormat=0.##, ValidatesOnExceptions=True}" />
+        </StackPanel>
+
+        <Grid Grid.Row="5" Grid.ColumnSpan="3" Margin="0,16,0,0">
+            <CheckBox Content="Active" IsChecked="{Binding IsActive}" HorizontalAlignment="Left" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <TextBlock Text="Code" Style="{StaticResource Muted}" Margin="0,0,8,0" />
+                <TextBox Text="{Binding Code}" Width="120" CharacterCasing="Upper" ToolTip="Leave blank to auto-generate" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

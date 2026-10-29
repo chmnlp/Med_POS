@@ -1,0 +1,57 @@
+<Window x:Class="MargPos.Desktop.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MargPOS" Width="1280" Height="800" MinWidth="1000" MinHeight="620"
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="232" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar -->
+        <Border Grid.Column="0" Background="{DynamicResource LayerFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,1,0">
+            <DockPanel Margin="12,16">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8,0,0,20">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE719;" FontSize="22" Margin="0,0,10,0"
+                               Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                    <TextBlock Text="MargPOS" FontSize="20" FontWeight="SemiBold" />
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Bottom">
+                    <Separator Margin="0,8" />
+                    <TextBlock Text="{Binding UserName}" FontWeight="SemiBold" Margin="8,4,8,0" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding UserRole}" Style="{StaticResource Muted}" Margin="8,0,8,8" />
+                    <Button Content="Change password" Tag="&#xE72E;" ContentTemplate="{StaticResource IconContent}"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,2"
+                            Command="{Binding ChangePasswordCommand}" />
+                    <Button Content="Light / dark theme" Tag="&#xE706;" ContentTemplate="{StaticResource IconContent}"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,2"
+                            Command="{Binding ToggleThemeCommand}" />
+                    <Button Content="Sign out" Tag="&#xE7E8;" ContentTemplate="{StaticResource IconContent}"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,2"
+                            Command="{Binding SignOutCommand}" />
+                </StackPanel>
+
+                <ListBox ItemsSource="{Binding Navigation}" SelectedItem="{Binding SelectedNav}"
+                         Background="Transparent" BorderThickness="0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="4,6">
+                                <TextBlock Style="{StaticResource Icon}" Text="{Binding Glyph}" Margin="0,0,14,0" />
+                                <TextBlock Text="{Binding Title}" FontSize="14" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <!-- Page -->
+        <DockPanel Grid.Column="1" Margin="28,20,28,20">
+            <TextBlock DockPanel.Dock="Top" Text="{Binding CurrentPage.Title}" Style="{StaticResource PageTitle}" Margin="0,0,0,16" />
+            <ContentControl Content="{Binding CurrentPage}" Focusable="False" />
+        </DockPanel>
+    </Grid>
+</Window>

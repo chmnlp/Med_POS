@@ -23,6 +23,9 @@ public record ItemDto
 
     /// <summary>Sum of on-hand quantity across all batches (read-only).</summary>
     public decimal StockQty { get; init; }
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool IsLowStock => ReorderLevel > 0 && StockQty <= ReorderLevel;
 }
 
 public record ItemUpsertRequest

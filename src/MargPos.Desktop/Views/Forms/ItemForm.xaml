@@ -1,0 +1,98 @@
+<UserControl x:Class="MargPos.Desktop.Views.Forms.ItemForm"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:MargPos.Desktop.ViewModels"
+             Width="620">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
+            <TextBlock Text="Item name *" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding Name}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="0">
+            <TextBlock Text="Code (blank = auto)" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding Code}" CharacterCasing="Upper" />
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="2">
+            <TextBlock Text="Barcode" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding Barcode}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.Column="0">
+            <TextBlock Text="Company / manufacturer" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding Manufacturer}" />
+        </StackPanel>
+        <StackPanel Grid.Row="2" Grid.Column="2">
+            <TextBlock Text="Category" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding Category}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Grid.Column="0">
+            <TextBlock Text="Pack (e.g. 10 TAB, 100 ML)" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding Pack}" CharacterCasing="Upper" />
+        </StackPanel>
+        <StackPanel Grid.Row="3" Grid.Column="2">
+            <TextBlock Text="Selling unit *" Style="{StaticResource FieldLabel}" />
+            <ComboBox IsEditable="True" ItemsSource="{x:Static vm:Choices.Units}" Text="{Binding Unit}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="4" Grid.Column="0">
+            <TextBlock Text="HSN code" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding HsnCode}" />
+        </StackPanel>
+        <StackPanel Grid.Row="4" Grid.Column="2">
+            <TextBlock Text="GST %" Style="{StaticResource FieldLabel}" />
+            <ComboBox ItemsSource="{x:Static vm:Choices.GstRates}" SelectedItem="{Binding GstRate}" ItemStringFormat="0.##" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="5" Grid.Column="0">
+            <TextBlock Text="MRP" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding Mrp, StringFormat=0.##, ValidatesOnExceptions=True}" />
+        </StackPanel>
+        <StackPanel Grid.Row="5" Grid.Column="2">
+            <TextBlock Text="Retail sale rate (≤ MRP)" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding SaleRate, StringFormat=0.##, ValidatesOnExceptions=True}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="6" Grid.Column="0">
+            <TextBlock Text="Wholesale rate" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding WholesaleRate, StringFormat=0.##, ValidatesOnExceptions=True}" />
+        </StackPanel>
+        <StackPanel Grid.Row="6" Grid.Column="2">
+            <TextBlock Text="Purchase rate" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding PurchaseRate, StringFormat=0.##, ValidatesOnExceptions=True}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="7" Grid.Column="0">
+            <TextBlock Text="Reorder level (0 = no alert)" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding ReorderLevel, StringFormat=0.###, ValidatesOnExceptions=True}" />
+        </StackPanel>
+        <StackPanel Grid.Row="7" Grid.Column="2">
+            <TextBlock Text="Drug schedule" Style="{StaticResource FieldLabel}" />
+            <ComboBox ItemsSource="{x:Static vm:Choices.Schedules}" SelectedItem="{Binding Schedule}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="8" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,16,0,0">
+            <CheckBox Content="Batch tracked (batch no. + expiry)" IsChecked="{Binding IsBatchTracked}" />
+            <CheckBox Content="Active" IsChecked="{Binding IsActive}" Margin="24,0,0,0" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="9" Grid.Column="0"
+                    Visibility="{Binding ShowOpeningQty, Converter={StaticResource BoolToVisibility}}">
+            <TextBlock Text="Opening stock" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding OpeningQty, StringFormat=0.###, ValidatesOnExceptions=True}" />
+        </StackPanel>
+    </Grid>
+</UserControl>
