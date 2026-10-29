@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MargSync.Core/MargSync.Core.csproj" />
+    <Project Path="src/MargSync.Data/MargSync.Data.csproj" />
+    <Project Path="src/MargSync.Parser/MargSync.Parser.csproj" />
+    <Project Path="src/MargSync.Service/MargSync.Service.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MargSync.Tests/MargSync.Tests.csproj" />
+  </Folder>
+</Solution>
