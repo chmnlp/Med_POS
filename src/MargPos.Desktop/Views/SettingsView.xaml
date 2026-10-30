@@ -1,0 +1,80 @@
+<UserControl x:Class="MargPos.Desktop.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:MargPos.Desktop.ViewModels">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="1100" HorizontalAlignment="Left">
+            <Border Style="{StaticResource ErrorBanner}"
+                    Visibility="{Binding ErrorMessage, Converter={StaticResource HasValueToVisibility}}">
+                <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" />
+            </Border>
+            <Border Style="{StaticResource InfoBanner}"
+                    Visibility="{Binding SavedMessage, Converter={StaticResource HasValueToVisibility}}">
+                <TextBlock Text="{Binding SavedMessage}" />
+            </Border>
+
+            <WrapPanel>
+                <!-- Store profile -->
+                <Border Style="{StaticResource Card}" Width="560" Margin="0,0,16,16" VerticalAlignment="Top">
+                    <StackPanel>
+                        <ContentControl Style="{StaticResource SectionHeader}" Tag="&#xE719;" Content="Store details (printed on invoices)" />
+                        <TextBlock Text="Only admins can change these." Style="{StaticResource Muted}"
+                                   Visibility="{Binding IsAdmin, Converter={StaticResource InvertedBoolToVisibility}}" />
+                        <StackPanel IsEnabled="{Binding IsAdmin}">
+                            <TextBlock Text="Store name *" Style="{StaticResource FieldLabel}" />
+                            <TextBox Text="{Binding StoreName}" />
+                            <TextBlock Text="Address" Style="{StaticResource FieldLabel}" />
+                            <TextBox Text="{Binding Address}" AcceptsReturn="True" TextWrapping="Wrap" Height="60" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" /><ColumnDefinition Width="16" /><ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Phone" Style="{StaticResource FieldLabel}" />
+                                    <TextBox Text="{Binding Phone}" />
+                                    <TextBlock Text="GSTIN" Style="{StaticResource FieldLabel}" />
+                                    <TextBox Text="{Binding Gstin}" CharacterCasing="Upper" MaxLength="15" />
+                                    <TextBlock Text="Invoice prefix (1–4 letters)" Style="{StaticResource FieldLabel}" />
+                                    <TextBox Text="{Binding InvoicePrefix}" CharacterCasing="Upper" MaxLength="4" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Email" Style="{StaticResource FieldLabel}" />
+                                    <TextBox Text="{Binding Email}" />
+                                    <TextBlock Text="State code (blank = from GSTIN)" Style="{StaticResource FieldLabel}" />
+                                    <TextBox Text="{Binding StateCode}" MaxLength="2" />
+                                    <TextBlock Text="Max cashier discount %" Style="{StaticResource FieldLabel}" />
+                                    <TextBox Text="{Binding MaxCashierDiscountPercent, StringFormat=0.##, ValidatesOnExceptions=True}" />
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock Text="Drug licence no(s)." Style="{StaticResource FieldLabel}" />
+                            <TextBox Text="{Binding DrugLicenseNo}" />
+                            <TextBlock Text="Invoice footer (terms, thank-you note)" Style="{StaticResource FieldLabel}" />
+                            <TextBox Text="{Binding InvoiceFooter}" AcceptsReturn="True" TextWrapping="Wrap" Height="60" />
+                            <Button Content="Save store details" Margin="0,16,0,0" HorizontalAlignment="Left"
+                                    Style="{DynamicResource AccentButtonStyle}" Command="{Binding SaveStoreCommand}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- This counter -->
+                <Border Style="{StaticResource Card}" Width="420" Margin="0,0,16,16" VerticalAlignment="Top">
+                    <StackPanel>
+                        <ContentControl Style="{StaticResource SectionHeader}" Tag="&#xE7F4;" Content="This counter" />
+                        <TextBlock Text="Saved on this PC only." Style="{StaticResource Muted}" />
+                        <TextBlock Text="Counter name (shown on held bills)" Style="{StaticResource FieldLabel}" />
+                        <TextBox Text="{Binding CounterName}" />
+                        <TextBlock Text="Invoice printer" Style="{StaticResource FieldLabel}" />
+                        <ComboBox ItemsSource="{Binding Printers}" Text="{Binding PrinterName}" IsEditable="True" />
+                        <TextBlock Text="Paper" Style="{StaticResource FieldLabel}" />
+                        <ComboBox ItemsSource="{x:Static vm:SettingsViewModel.PaperSizes}" SelectedItem="{Binding PaperSize}" />
+                        <CheckBox Content="Print the invoice automatically after each sale" IsChecked="{Binding AutoPrint}" Margin="0,16,0,0" />
+                        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                            <Button Content="Save counter settings" Style="{DynamicResource AccentButtonStyle}" Command="{Binding SaveCounterCommand}" />
+                            <Button Content="Preview sample bill" Margin="8,0,0,0" Command="{Binding PreviewSampleCommand}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </WrapPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

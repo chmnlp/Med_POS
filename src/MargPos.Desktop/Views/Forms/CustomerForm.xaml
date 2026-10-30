@@ -52,7 +52,11 @@
         </StackPanel>
 
         <Grid Grid.Row="5" Grid.ColumnSpan="3" Margin="0,16,0,0">
-            <CheckBox Content="Active" IsChecked="{Binding IsActive}" HorizontalAlignment="Left" />
+            <StackPanel Orientation="Horizontal">
+                <CheckBox Content="Active" IsChecked="{Binding IsActive}" />
+                <TextBlock Text="Credit days" Style="{StaticResource Muted}" Margin="24,0,8,0" />
+                <TextBox Text="{Binding CreditDays, ValidatesOnExceptions=True}" Width="60" ToolTip="Days to pay a credit bill before it shows as overdue" />
+            </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <TextBlock Text="Code" Style="{StaticResource Muted}" Margin="0,0,8,0" />
                 <TextBox Text="{Binding Code}" Width="120" CharacterCasing="Upper" ToolTip="Leave blank to auto-generate" />

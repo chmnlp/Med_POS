@@ -66,6 +66,21 @@ public abstract partial class PagedListViewModel<T> : PageViewModel where T : cl
 
     public ObservableCollection<T> Items { get; } = [];
 
+    private bool _loadedOnce;
+
+    /// <summary>True once a load finished with no records; drives the empty-state placeholder.</summary>
+    public bool ShowEmpty => _loadedOnce && !IsBusy && Total == 0;
+
+    /// <summary>True while the user is searching, so the placeholder can say "no matches" instead of "nothing yet".</summary>
+    public bool IsSearching => !string.IsNullOrWhiteSpace(SearchText);
+
+    protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+        if (e.PropertyName is nameof(IsBusy) or nameof(Total)) base.OnPropertyChanged(nameof(ShowEmpty));
+        else if (e.PropertyName is nameof(SearchText)) base.OnPropertyChanged(nameof(IsSearching));
+    }
+
     public string PageInfo => Total == 0
         ? "No records"
         : $"{(Page - 1) * PageSize + 1}–{Math.Min(Page * PageSize, Total)} of {Total}";
@@ -118,7 +133,9 @@ public abstract partial class PagedListViewModel<T> : PageViewModel where T : cl
 
         Items.Clear();
         foreach (var item in result.Items) Items.Add(item);
+        _loadedOnce = true;
         Total = result.Total;
+        OnPropertyChanged(nameof(ShowEmpty));
         Selected = selectedKey is null ? Items.FirstOrDefault() : Items.FirstOrDefault(i => Equals(KeyOf(i), selectedKey)) ?? Items.FirstOrDefault();
     }
 
@@ -158,6 +175,15 @@ public abstract partial class PagedListViewModel<T> : PageViewModel where T : cl
 public abstract partial class EditorViewModel : ViewModelBase
 {
     public abstract string Title { get; }
+
+    /// <summary>Segoe Fluent Icons glyph shown beside the dialog title.</summary>
+    public virtual string Glyph => "";
+
+    /// <summary>Caption of the dialog's main button.</summary>
+    public virtual string SaveText => "Save";
+
+    /// <summary>Read-only dialogs show a single Close button.</summary>
+    public virtual bool ShowCancel => true;
 
     /// <summary>Raised after a successful save.</summary>
     public event Action? Saved;

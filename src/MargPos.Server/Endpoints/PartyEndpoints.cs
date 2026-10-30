@@ -15,6 +15,7 @@ public static class PartyEndpoints
         var c = app.MapGroup("/api/customers");
         c.MapGet("/", ListCustomers);
         c.MapGet("/{id:int}", GetCustomer);
+        c.MapGet("/{id:int}/balance", GetCustomerBalance);
         c.MapPost("/", CreateCustomer);
         c.MapPut("/{id:int}", UpdateCustomer);
         c.MapDelete("/{id:int}", DeactivateCustomer).RequireAuthorization(Policies.Manager);
@@ -34,7 +35,7 @@ public static class PartyEndpoints
     private static readonly Expression<Func<Customer, CustomerDto>> CustomerDto = x => new CustomerDto
     {
         Id = x.Id, Code = x.Code, Name = x.Name, Phone = x.Phone, Email = x.Email, Gstin = x.Gstin,
-        Address = x.Address, Type = x.Type, CreditLimit = x.CreditLimit, OpeningBalance = x.OpeningBalance,
+        Address = x.Address, Type = x.Type, CreditLimit = x.CreditLimit, CreditDays = x.CreditDays, OpeningBalance = x.OpeningBalance,
         IsActive = x.IsActive,
     };
 
@@ -61,6 +62,13 @@ public static class PartyEndpoints
     private static async Task<IResult> GetCustomer(int id, PosDbContext db, CancellationToken ct) =>
         await db.Customers.AsNoTracking().Where(x => x.Id == id).Select(CustomerDto).FirstOrDefaultAsync(ct) is { } dto
             ? Results.Ok(dto) : DbHelpers.NotFound("Customer");
+
+    private static async Task<IResult> GetCustomerBalance(int id, PosDbContext db, CancellationToken ct)
+    {
+        var limit = await db.Customers.Where(x => x.Id == id).Select(x => (decimal?)x.CreditLimit).FirstOrDefaultAsync(ct);
+        if (limit is null) return DbHelpers.NotFound("Customer");
+        return Results.Ok(new CustomerBalanceDto(id, limit.Value, await Documents.OutstandingAsync(db, id, ct)));
+    }
 
     private static async Task<IResult> CreateCustomer(CustomerUpsertRequest req, PosDbContext db, CancellationToken ct)
     {
@@ -114,6 +122,7 @@ public static class PartyEndpoints
             .MaxLength(nameof(req.Address), req.Address, 500)
             .NonNegative(nameof(req.CreditLimit), req.CreditLimit);
         if (!Enum.IsDefined(req.Type)) e.Add(nameof(req.Type), "Unknown customer type.");
+        if (req.CreditDays is < 0 or > 365) e.Add(nameof(req.CreditDays), "Credit days must be 0–365.");
         return e;
     }
 
@@ -126,6 +135,7 @@ public static class PartyEndpoints
         c.Address = Errors.Clean(req.Address);
         c.Type = req.Type;
         c.CreditLimit = req.CreditLimit;
+        c.CreditDays = req.CreditDays;
         c.OpeningBalance = req.OpeningBalance;
         c.IsActive = req.IsActive;
     }
@@ -137,7 +147,7 @@ public static class PartyEndpoints
     private static readonly Expression<Func<Supplier, SupplierDto>> SupplierDto = x => new SupplierDto
     {
         Id = x.Id, Code = x.Code, Name = x.Name, Phone = x.Phone, Email = x.Email, Gstin = x.Gstin,
-        DrugLicenseNo = x.DrugLicenseNo, Address = x.Address, OpeningBalance = x.OpeningBalance, IsActive = x.IsActive,
+        DrugLicenseNo = x.DrugLicenseNo, Address = x.Address, CreditDays = x.CreditDays, OpeningBalance = x.OpeningBalance, IsActive = x.IsActive,
     };
 
     private static async Task<PagedResult<SupplierDto>> ListSuppliers(PosDbContext db, string? q, bool? includeInactive,
@@ -205,6 +215,7 @@ public static class PartyEndpoints
     }
 
     private static Errors Validate(SupplierUpsertRequest req) => new Errors()
+        .Add(req.CreditDays is < 0 or > 365, nameof(req.CreditDays), "Credit days must be 0–365.")
         .Required(nameof(req.Name), req.Name, 200)
         .MaxLength(nameof(req.Code), req.Code, 30)
         .Phone(nameof(req.Phone), req.Phone)
@@ -221,6 +232,7 @@ public static class PartyEndpoints
         s.Gstin = Errors.Clean(req.Gstin)?.ToUpperInvariant();
         s.DrugLicenseNo = Errors.Clean(req.DrugLicenseNo)?.ToUpperInvariant();
         s.Address = Errors.Clean(req.Address);
+        s.CreditDays = req.CreditDays;
         s.OpeningBalance = req.OpeningBalance;
         s.IsActive = req.IsActive;
     }

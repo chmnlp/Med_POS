@@ -4,7 +4,7 @@ using MargPos.Shared;
 
 namespace MargPos.Desktop.ViewModels;
 
-public partial class CustomersViewModel(ApiClient api, Session session, DialogService dialogs)
+public partial class CustomersViewModel(ApiClient api, Session session, DialogService dialogs, InvoicePrinter printer)
     : PagedListViewModel<CustomerDto>
 {
     public override string Title => "Customers";
@@ -22,6 +22,21 @@ public partial class CustomersViewModel(ApiClient api, Session session, DialogSe
     {
         EditCommand.NotifyCanExecuteChanged();
         DeactivateCommand.NotifyCanExecuteChanged();
+        ReceivePaymentCommand.NotifyCanExecuteChanged();
+        StatementCommand.NotifyCanExecuteChanged();
+    }
+
+    [RelayCommand(CanExecute = nameof(HasSelection))]
+    private async Task ReceivePayment()
+    {
+        if (Selected is { } c) await AccountsViewModel.ReceivePaymentAsync(api, dialogs, printer, c.Id, c.Name);
+    }
+
+    [RelayCommand(CanExecute = nameof(HasSelection))]
+    private void Statement()
+    {
+        if (Selected is { } c)
+            dialogs.ShowEditor(new StatementViewModel(api, printer, $"api/customers/{c.Id}/statement", c.Name, isCustomer: true));
     }
 
     [RelayCommand]

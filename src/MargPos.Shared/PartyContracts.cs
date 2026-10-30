@@ -11,8 +11,14 @@ public record CustomerDto
     public string? Address { get; init; }
     public CustomerType Type { get; init; }
     public decimal CreditLimit { get; init; }
+
+    /// <summary>Days allowed to pay a credit bill before it is overdue.</summary>
+    public int CreditDays { get; init; } = 30;
     public decimal OpeningBalance { get; init; }
     public bool IsActive { get; init; }
+
+    /// <summary>Accessible name in lists and combo boxes.</summary>
+    public override string ToString() => Name;
 }
 
 public record CustomerUpsertRequest
@@ -26,6 +32,9 @@ public record CustomerUpsertRequest
     public string? Address { get; init; }
     public CustomerType Type { get; init; }
     public decimal CreditLimit { get; init; }
+
+    /// <summary>Days allowed to pay a credit bill before it is overdue.</summary>
+    public int CreditDays { get; init; } = 30;
     public decimal OpeningBalance { get; init; }
     public bool IsActive { get; init; } = true;
 }
@@ -40,8 +49,14 @@ public record SupplierDto
     public string? Gstin { get; init; }
     public string? DrugLicenseNo { get; init; }
     public string? Address { get; init; }
+
+    /// <summary>Days the supplier allows us to pay.</summary>
+    public int CreditDays { get; init; } = 30;
     public decimal OpeningBalance { get; init; }
     public bool IsActive { get; init; }
+
+    /// <summary>Accessible name in lists and combo boxes.</summary>
+    public override string ToString() => Name;
 }
 
 public record SupplierUpsertRequest
@@ -54,6 +69,9 @@ public record SupplierUpsertRequest
     public string? Gstin { get; init; }
     public string? DrugLicenseNo { get; init; }
     public string? Address { get; init; }
+
+    /// <summary>Days the supplier allows us to pay.</summary>
+    public int CreditDays { get; init; } = 30;
     public decimal OpeningBalance { get; init; }
     public bool IsActive { get; init; } = true;
 }

@@ -136,6 +136,12 @@ public class ItemTests(PosApiFixture api)
         var byCode = await api.Admin.GetJson<ItemDto>($"/api/items/by-barcode/{barcode}");
         Assert.Equal(item.Id, byCode.Id);
 
+        // A generated code can be typed as its plain number: I00042 → "42", in the list (first) and the Enter lookup.
+        var number = int.Parse(item.Code[1..]).ToString();
+        var byNumber = await api.Admin.GetJson<PagedResult<ItemDto>>($"/api/items?q={number}");
+        Assert.Equal(item.Id, byNumber.Items[0].Id);
+        Assert.Equal(item.Id, (await api.Admin.GetJson<ItemDto>($"/api/items/by-barcode/{number}")).Id);
+
         // Wildcards in the search box are treated literally.
         var wildcard = await api.Admin.GetJson<PagedResult<ItemDto>>("/api/items?q=%25%25%25");
         Assert.DoesNotContain(wildcard.Items, i => i.Id == item.Id);

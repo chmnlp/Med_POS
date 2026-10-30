@@ -39,7 +39,12 @@ public class Item : EntityBase
     public decimal Mrp { get; set; }
     public decimal SaleRate { get; set; }
     public decimal WholesaleRate { get; set; }
+    public decimal HospitalRate { get; set; }
     public decimal PurchaseRate { get; set; }
+
+    /// <summary>Default margins on landed cost for suggesting lot rates at purchase (0 = none).</summary>
+    public decimal MarginPercent { get; set; }
+    public decimal WholesaleMarginPercent { get; set; }
     public bool IsBatchTracked { get; set; }
     public DrugSchedule Schedule { get; set; }
     public decimal ReorderLevel { get; set; }
@@ -62,9 +67,16 @@ public class Batch : EntityBase
     public DateOnly? MfgDate { get; set; }
     public DateOnly? ExpiryDate { get; set; }
     public decimal Mrp { get; set; }
+
+    /// <summary>Landed cost per unit (ex GST); weighted average when a lot is topped up at a different cost.</summary>
     public decimal PurchaseRate { get; set; }
     public decimal SaleRate { get; set; }
+    public decimal WholesaleRate { get; set; }
+    public decimal HospitalRate { get; set; }
     public decimal QtyOnHand { get; set; }
+
+    /// <summary>Lot barcode (from the pack or printed on our own label); scanning it bills this exact batch.</summary>
+    public string? Barcode { get; set; }
 }
 
 public class Customer : EntityBase
@@ -77,6 +89,7 @@ public class Customer : EntityBase
     public string? Address { get; set; }
     public CustomerType Type { get; set; }
     public decimal CreditLimit { get; set; }
+    public int CreditDays { get; set; } = 30;
     public decimal OpeningBalance { get; set; }
     public bool IsActive { get; set; } = true;
 }
@@ -90,6 +103,7 @@ public class Supplier : EntityBase
     public string? Gstin { get; set; }
     public string? DrugLicenseNo { get; set; }
     public string? Address { get; set; }
+    public int CreditDays { get; set; } = 30;
     public decimal OpeningBalance { get; set; }
     public bool IsActive { get; set; } = true;
 }

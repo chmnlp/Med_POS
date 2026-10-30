@@ -19,6 +19,18 @@ public static class DbSeeder
 
         await db.Database.MigrateAsync(ct);
 
+        if (!await db.StoreSettings.AnyAsync(ct))
+        {
+            db.StoreSettings.Add(new StoreSettings());
+            await db.SaveChangesAsync(ct);
+        }
+
+        if (!await db.MargLinkSettings.AnyAsync(ct))
+        {
+            db.MargLinkSettings.Add(new MargLinkSettings());
+            await db.SaveChangesAsync(ct);
+        }
+
         if (await db.Users.AnyAsync(ct)) return;
 
         var passwords = scope.ServiceProvider.GetRequiredService<PasswordService>();

@@ -46,6 +46,11 @@
             <TextBox Text="{Binding OpeningBalance, StringFormat=0.##, ValidatesOnExceptions=True}" />
         </StackPanel>
 
+        <StackPanel Grid.Row="4" Grid.Column="2">
+            <TextBlock Text="Credit days (they allow us)" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding CreditDays, ValidatesOnExceptions=True}" />
+        </StackPanel>
+
         <Grid Grid.Row="5" Grid.ColumnSpan="3" Margin="0,16,0,0">
             <CheckBox Content="Active" IsChecked="{Binding IsActive}" HorizontalAlignment="Left" />
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

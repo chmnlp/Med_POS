@@ -24,6 +24,7 @@ public class PurchaseBillLine
     public string? BatchNo { get; set; }
     public DateOnly? ExpiryDate { get; set; }
     public decimal Quantity { get; set; }
+    public decimal FreeQuantity { get; set; }
     public decimal TaxRate { get; set; }
     public decimal PurchaseRate { get; set; }
     public decimal CostRate { get; set; }

@@ -49,6 +49,14 @@ public class ApiClient(Session session)
     public async Task DeleteAsync(string path, CancellationToken ct = default) =>
         (await SendAsync(HttpMethod.Delete, path, null, ct)).Dispose();
 
+    /// <summary>Uploads a file as multipart form field "file".</summary>
+    public async Task<T> UploadAsync<T>(string path, string filePath, CancellationToken ct = default)
+    {
+        var form = new MultipartFormDataContent();
+        form.Add(new ByteArrayContent(await System.IO.File.ReadAllBytesAsync(filePath, ct)), "file", System.IO.Path.GetFileName(filePath));
+        return await ReadAsync<T>(await SendAsync(HttpMethod.Post, path, form, ct), ct);
+    }
+
     private static async Task<T> ReadAsync<T>(HttpResponseMessage res, CancellationToken ct)
     {
         using (res)
@@ -60,7 +68,12 @@ public class ApiClient(Session session)
         if (_http.BaseAddress is null) throw new ApiException("Server address is not set.");
 
         using var req = new HttpRequestMessage(method, path.TrimStart('/'));
-        if (body is not null) req.Content = JsonContent.Create(body, body.GetType(), options: PosJson.Options);
+        req.Content = body switch
+        {
+            null => null,
+            HttpContent content => content,
+            _ => JsonContent.Create(body, body.GetType(), options: PosJson.Options),
+        };
         var token = session.Token;
         if (token is not null) req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 

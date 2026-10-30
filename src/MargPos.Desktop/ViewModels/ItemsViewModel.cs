@@ -6,7 +6,7 @@ using MargPos.Shared;
 
 namespace MargPos.Desktop.ViewModels;
 
-public partial class ItemsViewModel(ApiClient api, Session session, DialogService dialogs)
+public partial class ItemsViewModel(ApiClient api, Session session, DialogService dialogs, LabelPrinter labels, ClientSettings settings)
     : PagedListViewModel<ItemDto>
 {
     private int _batchLoadVersion;
@@ -18,6 +18,7 @@ public partial class ItemsViewModel(ApiClient api, Session session, DialogServic
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(EditBatchCommand))]
+    [NotifyCanExecuteChangedFor(nameof(PrintLabelsCommand))]
     private BatchDto? _selectedBatch;
 
     public ObservableCollection<BatchDto> Batches { get; } = [];
@@ -39,6 +40,9 @@ public partial class ItemsViewModel(ApiClient api, Session session, DialogServic
         EditCommand.NotifyCanExecuteChanged();
         DeactivateCommand.NotifyCanExecuteChanged();
         AddBatchCommand.NotifyCanExecuteChanged();
+        AdjustStockCommand.NotifyCanExecuteChanged();
+        HistoryCommand.NotifyCanExecuteChanged();
+        PrintLabelsCommand.NotifyCanExecuteChanged();
         _ = LoadBatchesAsync(item);
     }
 
@@ -86,6 +90,26 @@ public partial class ItemsViewModel(ApiClient api, Session session, DialogServic
         if (await RunAsync(() => api.DeleteAsync($"api/items/{item.Id}"))) await LoadAsync();
     }
 
+    [RelayCommand(CanExecute = nameof(CanEditSelected))]
+    private async Task AdjustStock()
+    {
+        if (Selected is not { } item) return;
+        var editor = new StockAdjustViewModel(api, item);
+        if (!dialogs.ShowEditor(editor) || editor.Result is not { } done) return;
+        StatusMessage = $"{done.AdjustmentNo}: {done.ItemName} batch {done.BatchNo} {done.QtyChange:+0.###;-0.###}.";
+        await ReloadWithBatchesAsync();
+    }
+
+    private bool HasSelection() => Selected is not null;
+
+    [RelayCommand(CanExecute = nameof(HasSelection))]
+    private void History()
+    {
+        if (Selected is { } item) dialogs.ShowEditor(new StockHistoryViewModel(api, item));
+    }
+
+    [ObservableProperty] private string? _statusMessage;
+
     private bool CanAddBatch() => CanManage && Selected?.IsBatchTracked == true;
 
     [RelayCommand(CanExecute = nameof(CanAddBatch))]
@@ -103,6 +127,28 @@ public partial class ItemsViewModel(ApiClient api, Session session, DialogServic
     {
         await LoadAsync();
         await LoadBatchesAsync(Selected);
+    }
+
+    /// <summary>Labels for the selected batch, or for all of the item's stock when no batch is selected.</summary>
+    [RelayCommand(CanExecute = nameof(CanEditSelected))]
+    private async Task PrintLabels()
+    {
+        if (Selected is not { } item) return;
+        var request = SelectedBatch is { } batch && item.IsBatchTracked
+            ? new LabelRequest { BatchIds = [batch.Id] }
+            : new LabelRequest { ItemIds = [item.Id] };
+        var title = SelectedBatch is { } b && item.IsBatchTracked ? $"Print labels — {item.Name} batch {b.BatchNo}" : $"Print labels — {item.Name}";
+        dialogs.ShowEditor(new LabelPrintViewModel(api, labels, settings, title, request, l => l.QtyOnHand));
+        // Labels may have given lots their barcodes.
+        await LoadBatchesAsync(Selected);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanManage))]
+    private async Task SetBarcodes()
+    {
+        var setup = new BarcodeSetupViewModel(api);
+        dialogs.ShowEditor(setup);
+        if (setup.SavedCount > 0) await LoadAsync();
     }
 
     private bool CanEditBatch() => CanManage && SelectedBatch is not null;

@@ -38,6 +38,22 @@ public class BatchDatesTests
     }
 
     [Theory]
+    [InlineData("31-03-2027", 2027, 3, 31)]
+    [InlineData("1/4/26", 2026, 4, 1)]
+    [InlineData("30102026", 2026, 10, 30)]
+    public void Full_dates(string text, int y, int m, int d)
+    {
+        Assert.True(BatchDates.TryParseDate(text, out var date));
+        Assert.Equal(new DateOnly(y, m, d), date);
+    }
+
+    [Theory]
+    [InlineData("03/27")]
+    [InlineData("")]
+    [InlineData("31-02-2027")]
+    public void Full_date_requires_day_month_year(string text) => Assert.False(BatchDates.TryParseDate(text, out _));
+
+    [Theory]
     [InlineData("13/27")]
     [InlineData("00/27")]
     [InlineData("31-02-2027")]

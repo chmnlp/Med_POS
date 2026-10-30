@@ -1,0 +1,33 @@
+<UserControl x:Class="MargPos.Desktop.Views.Forms.StockAdjustForm"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:MargPos.Desktop.ViewModels"
+             Width="460">
+    <StackPanel>
+        <TextBlock Text="Batch" Style="{StaticResource FieldLabel}" />
+        <ComboBox ItemsSource="{Binding Batches}" SelectedItem="{Binding Batch}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock>
+                        <Run Text="{Binding BatchNo, Mode=OneWay}" FontWeight="SemiBold" />
+                        <Run Text="{Binding ExpiryDate, Mode=OneWay, StringFormat=' exp {0:MM/yy}'}" />
+                        <Run Text="{Binding QtyOnHand, Mode=OneWay, StringFormat=' · in stock {0:0.###}'}" />
+                    </TextBlock>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <TextBlock Text="Reason" Style="{StaticResource FieldLabel}" />
+        <ComboBox ItemsSource="{x:Static vm:StockAdjustViewModel.Reasons}" SelectedItem="{Binding Reason}" />
+
+        <TextBlock Text="Returning goods to a supplier? Use Purchases → Supplier returns, so a debit note is raised."
+                   Style="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0" />
+
+        <TextBlock Text="{Binding QuantityLabel}" Style="{StaticResource FieldLabel}" />
+        <TextBox Text="{Binding Quantity, StringFormat=0.###, ValidatesOnExceptions=True, UpdateSourceTrigger=LostFocus}" />
+        <TextBlock Text="{Binding Preview}" Margin="0,8,0,0" FontWeight="SemiBold" />
+
+        <TextBlock Text="Note" Style="{StaticResource FieldLabel}" />
+        <TextBox Text="{Binding Note}" />
+    </StackPanel>
+</UserControl>

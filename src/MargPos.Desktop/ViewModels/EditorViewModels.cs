@@ -19,6 +19,8 @@ public static class Choices
 
 public partial class ItemEditorViewModel : EditorViewModel
 {
+    public override string Glyph => "\uE719";
+
     private readonly ApiClient _api;
     private readonly int? _id;
 
@@ -40,7 +42,10 @@ public partial class ItemEditorViewModel : EditorViewModel
         _mrp = existing.Mrp;
         _saleRate = existing.SaleRate;
         _wholesaleRate = existing.WholesaleRate;
+        _hospitalRate = existing.HospitalRate;
         _purchaseRate = existing.PurchaseRate;
+        _marginPercent = existing.MarginPercent;
+        _wholesaleMarginPercent = existing.WholesaleMarginPercent;
         _isBatchTracked = existing.IsBatchTracked;
         _schedule = existing.Schedule;
         _reorderLevel = existing.ReorderLevel;
@@ -63,7 +68,10 @@ public partial class ItemEditorViewModel : EditorViewModel
     [ObservableProperty] private decimal _mrp;
     [ObservableProperty] private decimal _saleRate;
     [ObservableProperty] private decimal _wholesaleRate;
+    [ObservableProperty] private decimal _hospitalRate;
     [ObservableProperty] private decimal _purchaseRate;
+    [ObservableProperty] private decimal _marginPercent;
+    [ObservableProperty] private decimal _wholesaleMarginPercent;
     [ObservableProperty] private DrugSchedule _schedule;
     [ObservableProperty] private decimal _reorderLevel;
     [ObservableProperty] private bool _isActive = true;
@@ -88,7 +96,8 @@ public partial class ItemEditorViewModel : EditorViewModel
         {
             Code = Code, Name = Name, Barcode = Barcode, Manufacturer = Manufacturer, Category = Category,
             Pack = Pack, Unit = Unit, HsnCode = HsnCode, GstRate = GstRate, Mrp = Mrp, SaleRate = SaleRate,
-            WholesaleRate = WholesaleRate, PurchaseRate = PurchaseRate, IsBatchTracked = IsBatchTracked,
+            WholesaleRate = WholesaleRate, HospitalRate = HospitalRate, PurchaseRate = PurchaseRate,
+            MarginPercent = MarginPercent, WholesaleMarginPercent = WholesaleMarginPercent, IsBatchTracked = IsBatchTracked,
             Schedule = Schedule, ReorderLevel = ReorderLevel, IsActive = IsActive,
             OpeningQty = ShowOpeningQty ? OpeningQty : 0,
         };
@@ -100,6 +109,8 @@ public partial class ItemEditorViewModel : EditorViewModel
 
 public partial class BatchEditorViewModel : EditorViewModel
 {
+    public override string Glyph => "\uE823";
+
     private readonly ApiClient _api;
     private readonly ItemDto _item;
     private readonly int? _id;
@@ -112,9 +123,12 @@ public partial class BatchEditorViewModel : EditorViewModel
         _mrp = existing?.Mrp ?? item.Mrp;
         _saleRate = existing?.SaleRate ?? item.SaleRate;
         _purchaseRate = existing?.PurchaseRate ?? item.PurchaseRate;
+        _wholesaleRate = existing?.WholesaleRate ?? item.WholesaleRate;
+        _hospitalRate = existing?.HospitalRate ?? item.HospitalRate;
         if (existing is null) return;
 
         _batchNo = existing.BatchNo;
+        _barcode = existing.Barcode;
         _mfgText = BatchDates.Format(existing.MfgDate);
         _expiryText = existing.ExpiryDate?.ToString("dd-MM-yyyy") ?? "";
     }
@@ -123,11 +137,14 @@ public partial class BatchEditorViewModel : EditorViewModel
     public override string Title => IsNew ? $"New batch — {_item.Name}" : $"Edit batch {BatchNo} — {_item.Name}";
 
     [ObservableProperty] private string _batchNo = "";
+    [ObservableProperty] private string? _barcode;
     [ObservableProperty] private string _mfgText = "";
     [ObservableProperty] private string _expiryText = "";
     [ObservableProperty] private decimal _mrp;
     [ObservableProperty] private decimal _saleRate;
     [ObservableProperty] private decimal _purchaseRate;
+    [ObservableProperty] private decimal _wholesaleRate;
+    [ObservableProperty] private decimal _hospitalRate;
     [ObservableProperty] private decimal _openingQty;
 
     protected override async Task SaveCoreAsync()
@@ -141,9 +158,11 @@ public partial class BatchEditorViewModel : EditorViewModel
         var req = new BatchUpsertRequest
         {
             BatchNo = BatchNo,
+            Barcode = Barcode,
             MfgDate = mfg,
             ExpiryDate = expiry,
             Mrp = Mrp, SaleRate = SaleRate, PurchaseRate = PurchaseRate,
+            WholesaleRate = WholesaleRate, HospitalRate = HospitalRate,
             OpeningQty = IsNew ? OpeningQty : 0,
         };
         if (IsNew) await _api.PostAsync<BatchDto>($"api/items/{_item.Id}/batches", req);
@@ -153,6 +172,8 @@ public partial class BatchEditorViewModel : EditorViewModel
 
 public partial class CustomerEditorViewModel : EditorViewModel
 {
+    public override string Glyph => "\uE716";
+
     private readonly ApiClient _api;
     private readonly int? _id;
 
@@ -170,6 +191,7 @@ public partial class CustomerEditorViewModel : EditorViewModel
         _address = existing.Address;
         _type = existing.Type;
         _creditLimit = existing.CreditLimit;
+        _creditDays = existing.CreditDays;
         _openingBalance = existing.OpeningBalance;
         _isActive = existing.IsActive;
     }
@@ -186,6 +208,7 @@ public partial class CustomerEditorViewModel : EditorViewModel
     [ObservableProperty] private string? _address;
     [ObservableProperty] private CustomerType _type;
     [ObservableProperty] private decimal _creditLimit;
+    [ObservableProperty] private int _creditDays = 30;
     [ObservableProperty] private decimal _openingBalance;
     [ObservableProperty] private bool _isActive = true;
 
@@ -194,7 +217,7 @@ public partial class CustomerEditorViewModel : EditorViewModel
         var req = new CustomerUpsertRequest
         {
             Code = Code, Name = Name, Phone = Phone, Email = Email, Gstin = Gstin, Address = Address,
-            Type = Type, CreditLimit = CreditLimit, OpeningBalance = OpeningBalance, IsActive = IsActive,
+            Type = Type, CreditLimit = CreditLimit, CreditDays = CreditDays, OpeningBalance = OpeningBalance, IsActive = IsActive,
         };
         Result = IsNew
             ? await _api.PostAsync<CustomerDto>("api/customers", req)
@@ -204,6 +227,8 @@ public partial class CustomerEditorViewModel : EditorViewModel
 
 public partial class SupplierEditorViewModel : EditorViewModel
 {
+    public override string Glyph => "\uE77B";
+
     private readonly ApiClient _api;
     private readonly int? _id;
 
@@ -220,6 +245,7 @@ public partial class SupplierEditorViewModel : EditorViewModel
         _gstin = existing.Gstin;
         _drugLicenseNo = existing.DrugLicenseNo;
         _address = existing.Address;
+        _creditDays = existing.CreditDays;
         _openingBalance = existing.OpeningBalance;
         _isActive = existing.IsActive;
     }
@@ -235,6 +261,7 @@ public partial class SupplierEditorViewModel : EditorViewModel
     [ObservableProperty] private string? _gstin;
     [ObservableProperty] private string? _drugLicenseNo;
     [ObservableProperty] private string? _address;
+    [ObservableProperty] private int _creditDays = 30;
     [ObservableProperty] private decimal _openingBalance;
     [ObservableProperty] private bool _isActive = true;
 
@@ -243,7 +270,7 @@ public partial class SupplierEditorViewModel : EditorViewModel
         var req = new SupplierUpsertRequest
         {
             Code = Code, Name = Name, Phone = Phone, Email = Email, Gstin = Gstin,
-            DrugLicenseNo = DrugLicenseNo, Address = Address, OpeningBalance = OpeningBalance, IsActive = IsActive,
+            DrugLicenseNo = DrugLicenseNo, Address = Address, CreditDays = CreditDays, OpeningBalance = OpeningBalance, IsActive = IsActive,
         };
         Result = IsNew
             ? await _api.PostAsync<SupplierDto>("api/suppliers", req)
@@ -253,6 +280,8 @@ public partial class SupplierEditorViewModel : EditorViewModel
 
 public partial class UserEditorViewModel : EditorViewModel
 {
+    public override string Glyph => "\uE77B";
+
     private readonly ApiClient _api;
     private readonly int? _id;
 
@@ -289,6 +318,8 @@ public partial class UserEditorViewModel : EditorViewModel
 
 public partial class ResetPasswordViewModel(ApiClient api, UserDto user) : EditorViewModel
 {
+    public override string Glyph => "\uE72E";
+
     public override string Title => $"Reset password — {user.FullName}";
 
     [ObservableProperty] private string _newPassword = "";

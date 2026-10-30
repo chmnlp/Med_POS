@@ -10,7 +10,7 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Grid.Column="0">
@@ -26,6 +26,10 @@
         <StackPanel Grid.Row="1" Grid.Column="0">
             <TextBlock Text="Mfg. (MM/YY)" Style="{StaticResource FieldLabel}" />
             <TextBox Text="{Binding MfgText}" />
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="2">
+            <TextBlock Text="Batch barcode (optional)" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding Barcode}" ToolTip="Scan it if the pack's barcode is different for each batch; Print labels fills one in otherwise" />
         </StackPanel>
 
         <StackPanel Grid.Row="2" Grid.Column="0">
@@ -47,7 +51,16 @@
             <TextBox Text="{Binding OpeningQty, StringFormat=0.###, ValidatesOnExceptions=True}" />
         </StackPanel>
 
-        <TextBlock Grid.Row="4" Grid.ColumnSpan="3" Margin="0,16,0,0" Style="{StaticResource Muted}" TextWrapping="Wrap"
+        <StackPanel Grid.Row="4" Grid.Column="0">
+            <TextBlock Text="Wholesale rate (this lot)" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding WholesaleRate, StringFormat=0.##, ValidatesOnExceptions=True}" />
+        </StackPanel>
+        <StackPanel Grid.Row="4" Grid.Column="2">
+            <TextBlock Text="Hospital rate (this lot)" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding HospitalRate, StringFormat=0.##, ValidatesOnExceptions=True}" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="5" Grid.ColumnSpan="3" Margin="0,16,0,0" Style="{StaticResource Muted}" TextWrapping="Wrap"
                    Text="Rates left at 0 use the item's rates. Quantity changes after creation are made through stock adjustments so every change is recorded." />
     </Grid>
 </UserControl>

@@ -30,6 +30,7 @@ public class EdeParserTests
         var line = bills[0].Lines.First();
         line.ItemCode.Should().Be("AMLGLUCOTBXXXX01");
         line.Quantity.Should().Be(400m);
+        line.FreeQuantity.Should().Be(0m);
         line.MRP.Should().Be(24m);
         line.TaxRate.Should().Be(4m);
     }

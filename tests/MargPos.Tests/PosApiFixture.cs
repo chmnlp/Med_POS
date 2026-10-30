@@ -29,6 +29,8 @@ public sealed class PosApiFixture : WebApplicationFactory<Program>, IAsyncLifeti
     {
         builder.UseEnvironment("Testing");
         builder.UseSetting("ConnectionStrings:Pos", _connectionString);
+        // Tests send to MARG explicitly; the background sender would race them.
+        builder.UseSetting("MargLink:Background", "false");
         builder.UseSetting("Jwt:Key", "integration-test-signing-key-at-least-32-bytes!");
     }
 

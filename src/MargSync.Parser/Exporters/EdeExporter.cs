@@ -1,53 +1,66 @@
 using MargSync.Core.Interfaces;
 using MargSync.Core.Models;
+using System.Globalization;
 using System.Text;
 
 namespace MargSync.Parser.Exporters;
 
 /// <summary>
 /// Writes PurchaseBill records as MARG EDE comma-delimited import files
-/// for drop into MARG's Method\ folder.
+/// for drop into MARG's Method\ folder. Field positions mirror <see cref="EdeParser"/>.
 /// </summary>
 public class EdeExporter : IExporter<PurchaseBill>
 {
-    public async Task ExportAsync(IEnumerable<PurchaseBill> records, string outputPath, CancellationToken ct = default)
+    /// <summary>No byte-order mark: MARG (Visual FoxPro) reads the first bytes as data.</summary>
+    private static readonly Encoding FileEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+
+    public string Build(IEnumerable<PurchaseBill> records)
     {
         var sb = new StringBuilder();
         int seq = 1;
         foreach (var bill in records)
         {
             // H record
-            sb.AppendLine(
-                $"H,{seq},{bill.CompanyCode},{bill.BillNumber},," +
+            sb.Append(
+                $"H,{seq},{Clean(bill.CompanyCode)},{Clean(bill.BillNumber)},," +
                 $"{bill.BillDate:ddMMyyyy},{bill.DeliveryMode ?? "DIRECT"},,,," +
-                $"{bill.DeliveryLocation ?? string.Empty},,,,,,,,,,,,");
+                $"{Clean(bill.DeliveryLocation ?? string.Empty)},,,,,,,,,,,,\r\n");
 
             // T records
             foreach (var line in bill.Lines)
             {
                 var expiry = line.ExpiryDate.HasValue
-                    ? line.ExpiryDate.Value.ToString("ddMMyyyy")
+                    ? line.ExpiryDate.Value.ToString("ddMMyyyy", CultureInfo.InvariantCulture)
                     : string.Empty;
-                sb.AppendLine(
-                    $"T,{bill.CompanyCode},{bill.SupplierName},," +
-                    $"{line.ItemCode},{EscapeCsv(line.ItemName)},{line.PackForm ?? "S10"}," +
-                    $"{EscapeCsv(line.Manufacturer ?? string.Empty)},{line.BatchNo ?? string.Empty},{expiry}," +
-                    $"1,0,{line.TaxRate},{line.PurchaseRate},{line.CostRate},," +
-                    $"{line.MRP},0,{line.TaxAmount},," +
-                    $"{line.Quantity},0,,,0");
+                sb.Append(
+                    $"T,{Clean(bill.CompanyCode)},{Clean(bill.SupplierName)},," +
+                    $"{Clean(line.ItemCode)},{Clean(line.ItemName)},{Clean(line.PackForm ?? "S10")}," +
+                    $"{Clean(line.Manufacturer ?? string.Empty)},{Clean(line.BatchNo ?? string.Empty)},{expiry}," +
+                    $"1,{N(line.FreeQuantity)},{N(line.TaxRate)},{N(line.PurchaseRate)},{N(line.CostRate)},," +
+                    $"{N(line.MRP)},{N(line.Discount)},{N(line.TaxAmount)},," +
+                    $"{N(line.Quantity)},0,,,0\r\n");
             }
 
             // F record
-            sb.AppendLine(
-                $"F,{bill.TotalAmount},,,,,,{bill.TotalTax},0,,,,,,,,,,,,," +
-                $"0,{bill.NetAmount},");
+            sb.Append(
+                $"F,{N(bill.TotalAmount)},,,,,,{N(bill.TotalTax)},0,,,,,,,,,,,,,," +
+                $"0,{N(bill.NetAmount)},\r\n");
 
             seq++;
         }
-
-        await File.WriteAllTextAsync(outputPath, sb.ToString(), Encoding.UTF8, ct);
+        return sb.ToString();
     }
 
-    private static string EscapeCsv(string s) =>
-        s.Contains(',') ? $"\"{s}\"" : s;
+    public async Task ExportAsync(IEnumerable<PurchaseBill> records, string outputPath, CancellationToken ct = default)
+    {
+        // Write beside the target and rename, so MARG never picks up a half-written file.
+        var temp = outputPath + ".part";
+        await File.WriteAllTextAsync(temp, Build(records), FileEncoding, ct);
+        File.Move(temp, outputPath, overwrite: true);
+    }
+
+    private static string N(decimal value) => value.ToString("0.####", CultureInfo.InvariantCulture);
+
+    /// <summary>The format has no quoting, so commas and line breaks inside text would shift every field.</summary>
+    private static string Clean(string s) => s.Replace(',', ' ').Replace('\r', ' ').Replace('\n', ' ').Trim();
 }

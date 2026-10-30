@@ -13,7 +13,7 @@
             <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
@@ -89,7 +89,20 @@
             <CheckBox Content="Active" IsChecked="{Binding IsActive}" Margin="24,0,0,0" />
         </StackPanel>
 
-        <StackPanel Grid.Row="9" Grid.Column="0"
+        <StackPanel Grid.Row="9" Grid.Column="0">
+            <TextBlock Text="Hospital rate (0 = wholesale rate)" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding HospitalRate, StringFormat=0.##, ValidatesOnExceptions=True}" />
+        </StackPanel>
+        <StackPanel Grid.Row="9" Grid.Column="2">
+            <TextBlock Text="Retail margin % on cost (suggests rate at purchase)" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding MarginPercent, StringFormat=0.##, ValidatesOnExceptions=True}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="10" Grid.Column="2">
+            <TextBlock Text="Wholesale margin % on cost" Style="{StaticResource FieldLabel}" />
+            <TextBox Text="{Binding WholesaleMarginPercent, StringFormat=0.##, ValidatesOnExceptions=True}" />
+        </StackPanel>
+        <StackPanel Grid.Row="10" Grid.Column="0"
                     Visibility="{Binding ShowOpeningQty, Converter={StaticResource BoolToVisibility}}">
             <TextBlock Text="Opening stock" Style="{StaticResource FieldLabel}" />
             <TextBox Text="{Binding OpeningQty, StringFormat=0.###, ValidatesOnExceptions=True}" />

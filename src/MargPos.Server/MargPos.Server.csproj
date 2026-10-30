@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MargPos.Shared\MargPos.Shared.csproj" />
     <ProjectReference Include="..\MargPos.Data\MargPos.Data.csproj" />
+    <ProjectReference Include="..\MargSync.Parser\MargSync.Parser.csproj" />
   </ItemGroup>
 
   <ItemGroup>

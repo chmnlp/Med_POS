@@ -19,7 +19,10 @@ public partial class EditorWindow : Window
         Loaded += (_, _) => MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
     }
 
-    private void OnSave(object sender, RoutedEventArgs e)
+    private void OnSave(object sender, RoutedEventArgs e) => TrySave();
+
+    /// <summary>Commits the field being edited, blocks on invalid input, then runs the editor's save.</summary>
+    public void TrySave()
     {
         // Enter triggers the default button without moving focus, so commit the field being typed in.
         if (Keyboard.FocusedElement is TextBox box)

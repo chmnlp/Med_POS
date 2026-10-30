@@ -22,6 +22,18 @@ public class DialogService
     public void Info(string message, string title = "MargPOS") =>
         Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
 
+    public string? OpenFile(string title, string filter)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog { Title = title, Filter = filter };
+        return (ActiveWindow() is { } owner ? dialog.ShowDialog(owner) : dialog.ShowDialog()) == true ? dialog.FileName : null;
+    }
+
+    public string? SaveFile(string title, string filter, string fileName)
+    {
+        var dialog = new Microsoft.Win32.SaveFileDialog { Title = title, Filter = filter, FileName = fileName };
+        return (ActiveWindow() is { } owner ? dialog.ShowDialog(owner) : dialog.ShowDialog()) == true ? dialog.FileName : null;
+    }
+
     private static MessageBoxResult Show(string message, string title, MessageBoxButton buttons, MessageBoxImage image)
     {
         var owner = ActiveWindow();

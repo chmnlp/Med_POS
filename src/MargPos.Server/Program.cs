@@ -14,7 +14,10 @@ var connStr = builder.Configuration.GetConnectionString("Pos")
 builder.Services.AddDbContext<PosDbContext>(o => o.UseSqlServer(connStr, PosDbContextOptions.ConfigureSqlServer));
 
 builder.Services.AddPosAuth(JwtSettings.Load(builder.Configuration));
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddProblemDetails();
+builder.Services.AddScoped<MargLinkService>();
+builder.Services.AddHostedService<MargLinkWorker>();
 builder.Services.ConfigureHttpJsonOptions(o => PosJson.Configure(o.SerializerOptions));
 
 var app = builder.Build();
@@ -30,6 +33,14 @@ app.MapUsers();
 app.MapItems();
 app.MapParties();
 app.MapDashboard();
+app.MapSales();
+app.MapSettings();
+app.MapPurchases();
+app.MapStock();
+app.MapPurchaseReturns();
+app.MapAccounts();
+app.MapReports();
+app.MapMarg();
 
 await DbSeeder.InitialiseAsync(app.Services);
 await app.RunAsync();

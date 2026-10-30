@@ -16,6 +16,19 @@ public static class BatchDates
     /// <summary>Month/year means the first day of that month.</summary>
     public static bool TryParseMfg(string? text, out DateOnly? date) => TryParse(text, endOfMonth: false, out date);
 
+    /// <summary>A full day-month-year date such as an invoice date (31-03-2027, 31/3/27, 31032027).</summary>
+    public static bool TryParseDate(string? text, out DateOnly date)
+    {
+        date = default;
+        if (string.IsNullOrWhiteSpace(text)) return false;
+        var t = text.Trim();
+        if (t.Length == 8 && t.All(char.IsAsciiDigit)) t = $"{t[..2]}-{t[2..4]}-{t[4..]}";
+        if (!TryParse(t, endOfMonth: false, out var parsed) || parsed is null) return false;
+        if (t.Split(Separators, StringSplitOptions.RemoveEmptyEntries).Length != 3) return false;
+        date = parsed.Value;
+        return true;
+    }
+
     public static string Format(DateOnly? date) => date?.ToString("MM/yyyy", CultureInfo.InvariantCulture) ?? "";
 
     private static bool TryParse(string? text, bool endOfMonth, out DateOnly? date)

@@ -11,7 +11,7 @@ namespace MargSync.Parser;
 /// T-record field positions (0-based):
 ///   0=RecordType, 1=CompanyCode, 2=SupplierName, 3=(empty), 4=ItemCode,
 ///   5=ItemName, 6=PackForm, 7=Manufacturer, 8=BatchNo, 9=ExpiryDDMMYYYY,
-///   10=Qty1, 11=Qty2, 12=TaxRate, 13=PurchaseRate, 14=CostRate, 15=(empty),
+///   10=PackQtyType, 11=FreeQty, 12=TaxRate, 13=PurchaseRate, 14=CostRate, 15=(empty),
 ///   16=MRP, 17=Discount, 18=TaxPerUnit, 19=(empty), 20=Qty
 /// </summary>
 public class EdeParser : IParser<PurchaseBill>
@@ -104,6 +104,7 @@ public class EdeParser : IParser<PurchaseBill>
             Discount     = ParseDecimal(SafeGet(f, 17)),
             TaxAmount    = ParseDecimal(SafeGet(f, 18)),
             Quantity     = ParseDecimal(SafeGet(f, 20)),
+            FreeQuantity = ParseDecimal(SafeGet(f, 11)),
         };
     }
 

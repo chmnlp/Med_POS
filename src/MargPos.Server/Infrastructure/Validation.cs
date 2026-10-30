@@ -17,6 +17,8 @@ public sealed partial class Errors
         return this;
     }
 
+    public Errors Add(bool condition, string field, string message) => condition ? Add(field, message) : this;
+
     public Errors Required(string field, string? value, int maxLength)
     {
         if (string.IsNullOrWhiteSpace(value)) Add(field, $"{field} is required.");
@@ -63,6 +65,8 @@ public sealed partial class Errors
 
     /// <summary>Trims text and converts blank values to null.</summary>
     public static string? Clean(string? s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+
+    public static string Truncate(string s, int maxLength) => s.Length <= maxLength ? s : s[..maxLength];
 
     [GeneratedRegex(@"^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$")]
     private static partial Regex GstinRegex();

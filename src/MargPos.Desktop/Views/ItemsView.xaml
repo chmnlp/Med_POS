@@ -1,6 +1,7 @@
-﻿<UserControl x:Class="MargPos.Desktop.Views.ItemsView"
+<UserControl x:Class="MargPos.Desktop.Views.ItemsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:MargPos.Desktop.Views">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -19,14 +20,23 @@
                         Command="{Binding EditCommand}" ToolTip="Enter" />
                 <Button Content="Deactivate" Tag="&#xE74D;" ContentTemplate="{StaticResource IconContent}" Margin="8,0,0,0"
                         Command="{Binding DeactivateCommand}" ToolTip="Delete" />
+                <Button Content="Adjust stock" Tag="&#xE9D5;" ContentTemplate="{StaticResource IconContent}" Margin="8,0,0,0"
+                        Command="{Binding AdjustStockCommand}" ToolTip="Damage, expiry write-off, count correction, return to supplier" />
+                <Button Content="Stock history" Tag="&#xE81C;" ContentTemplate="{StaticResource IconContent}" Margin="8,0,0,0"
+                        Command="{Binding HistoryCommand}" />
+                <Button Content="Print labels" Tag="&#xE8EC;" ContentTemplate="{StaticResource IconContent}" Margin="8,0,0,0"
+                        Command="{Binding PrintLabelsCommand}" ToolTip="Barcode stickers for this item (or the batch selected below)" />
+                <Button Content="Set barcodes" Tag="&#xED14;" ContentTemplate="{StaticResource IconContent}" Margin="8,0,0,0"
+                        Command="{Binding SetBarcodesCommand}" ToolTip="Scan pack barcodes into items one after another" />
                 <Button Tag="&#xE72C;" ContentTemplate="{StaticResource IconContent}" Content="Refresh" Margin="8,0,0,0"
                         Command="{Binding RefreshCommand}" ToolTip="F5" />
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <Grid Width="340">
-                    <TextBox x:Name="SearchBox" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox x:Name="SearchBox" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Padding="34,6,10,6" AutomationProperties.Name="Search" />
+                    <TextBlock Style="{StaticResource SearchGlyph}" />
                     <TextBlock Text="Search name, code, barcode or company  (Ctrl+F)" Style="{StaticResource Muted}"
-                               Margin="12,0" IsHitTestVisible="False"
+                               Margin="36,0,12,0" IsHitTestVisible="False"
                                Visibility="{Binding Text, ElementName=SearchBox, Converter={StaticResource NoValueToVisibility}}" />
                 </Grid>
                 <CheckBox Content="Low stock only" Margin="16,0,0,0" IsChecked="{Binding LowStockOnly}" />
@@ -34,10 +44,16 @@
             </StackPanel>
         </DockPanel>
 
-        <Border Grid.Row="1" Style="{StaticResource ErrorBanner}"
-                Visibility="{Binding ErrorMessage, Converter={StaticResource HasValueToVisibility}}">
-            <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" />
-        </Border>
+        <StackPanel Grid.Row="1">
+            <Border Style="{StaticResource ErrorBanner}"
+                    Visibility="{Binding ErrorMessage, Converter={StaticResource HasValueToVisibility}}">
+                <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" />
+            </Border>
+            <Border Style="{StaticResource InfoBanner}"
+                    Visibility="{Binding StatusMessage, Converter={StaticResource HasValueToVisibility}}">
+                <TextBlock Text="{Binding StatusMessage}" />
+            </Border>
+        </StackPanel>
 
         <!-- Items -->
         <DataGrid Grid.Row="2" x:Name="ItemGrid" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}"
@@ -54,10 +70,26 @@
                 <DataGridTextColumn Header="Stock" Binding="{Binding StockQty, StringFormat=0.###}" Width="80" ElementStyle="{StaticResource StockCell}" />
                 <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" Width="70" />
                 <DataGridCheckBoxColumn Header="Batch" Binding="{Binding IsBatchTracked}" Width="60" />
-                <DataGridTextColumn Header="Sch." Binding="{Binding Schedule}" Width="60" />
-                <DataGridTextColumn Header="" Width="80" ElementStyle="{StaticResource InactiveCell}" />
+                <DataGridTemplateColumn Header="Sch." Width="70">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid Margin="4,0" VerticalAlignment="Center">
+                                <Border x:Name="CH" Style="{StaticResource ChipAmber}" Visibility="Collapsed"><TextBlock Text="{Binding Schedule}" /></Border>
+                                <Border x:Name="CH1" Style="{StaticResource ChipRed}" Visibility="Collapsed"><TextBlock Text="{Binding Schedule}" /></Border>
+                                <Border x:Name="CX" Style="{StaticResource ChipRed}" Visibility="Collapsed"><TextBlock Text="{Binding Schedule}" /></Border>
+                            </Grid>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding Schedule}" Value="H"><Setter TargetName="CH" Property="Visibility" Value="Visible" /></DataTrigger>
+                                <DataTrigger Binding="{Binding Schedule}" Value="H1"><Setter TargetName="CH1" Property="Visibility" Value="Visible" /></DataTrigger>
+                                <DataTrigger Binding="{Binding Schedule}" Value="X"><Setter TargetName="CX" Property="Visibility" Value="Visible" /></DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="" Width="90" CellTemplate="{StaticResource InactiveChipCell}" />
             </DataGrid.Columns>
         </DataGrid>
+        <views:EmptyState Grid.Row="2" Glyph="&#xE719;" Title="No items found" Hint="Add items with New item (F2), import the MARG item master from MARG link, or clear the filters." Visibility="{Binding ShowEmpty, Converter={StaticResource BoolToVisibility}}" />
 
         <!-- Batches of the selected item -->
         <Border Grid.Row="3" Style="{StaticResource Card}" Margin="0,12,0,0"
@@ -82,9 +114,12 @@
                         <DataGridTextColumn Header="Expiry" Binding="{Binding ExpiryDate, StringFormat=MM/yyyy}" Width="90" ElementStyle="{StaticResource ExpiryCell}" />
                         <DataGridTextColumn Header="Status" Binding="{Binding ExpiryDate, Converter={StaticResource ExpiryStatus}}" Width="100" ElementStyle="{StaticResource ExpiryCell}" />
                         <DataGridTextColumn Header="MRP" Binding="{Binding Mrp, StringFormat=N2}" Width="90" ElementStyle="{StaticResource NumberCell}" />
-                        <DataGridTextColumn Header="Rate" Binding="{Binding SaleRate, StringFormat=N2}" Width="90" ElementStyle="{StaticResource NumberCell}" />
-                        <DataGridTextColumn Header="Purchase" Binding="{Binding PurchaseRate, StringFormat=N2}" Width="90" ElementStyle="{StaticResource NumberCell}" />
+                        <DataGridTextColumn Header="Retail" Binding="{Binding SaleRate, StringFormat=N2}" Width="85" ElementStyle="{StaticResource NumberCell}" />
+                        <DataGridTextColumn Header="Wholesale" Binding="{Binding WholesaleRate, StringFormat='#,##0.00;-#,##0.00;–'}" Width="85" ElementStyle="{StaticResource NumberCell}" />
+                        <DataGridTextColumn Header="Hospital" Binding="{Binding HospitalRate, StringFormat='#,##0.00;-#,##0.00;–'}" Width="85" ElementStyle="{StaticResource NumberCell}" />
+                        <DataGridTextColumn Header="Cost" Binding="{Binding PurchaseRate, StringFormat=0.00##}" Width="85" ElementStyle="{StaticResource NumberCell}" />
                         <DataGridTextColumn Header="Qty" Binding="{Binding QtyOnHand, StringFormat=0.###}" Width="80" ElementStyle="{StaticResource NumberCell}" />
+                        <DataGridTextColumn Header="Barcode" Binding="{Binding Barcode, TargetNullValue=–}" Width="110" />
                     </DataGrid.Columns>
                 </DataGrid>
             </DockPanel>

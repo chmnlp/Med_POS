@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Threading;
@@ -34,6 +34,19 @@ public partial class App : Application
         services.AddSingleton<Session>();
         services.AddSingleton<ApiClient>();
         services.AddSingleton<DialogService>();
+        services.AddSingleton<StoreContext>();
+        services.AddSingleton<InvoicePrinter>();
+        services.AddSingleton<LabelPrinter>();
+        services.AddTransient<BillingViewModel>();
+        services.AddTransient<SalesViewModel>();
+        services.AddTransient<SettingsViewModel>();
+        services.AddTransient<PurchasesViewModel>();
+        services.AddTransient<ReportsViewModel>();
+        services.AddTransient<PurchaseReturnsViewModel>();
+        services.AddTransient<AccountsViewModel>();
+        services.AddTransient<DayEndViewModel>();
+        services.AddTransient<MargLinkViewModel>();
+        services.AddTransient<SalesReportsViewModel>();
         services.AddTransient<LoginViewModel>();
         services.AddTransient<ChangePasswordViewModel>();
         services.AddTransient<MainViewModel>();
@@ -42,6 +55,7 @@ public partial class App : Application
         services.AddTransient<CustomersViewModel>();
         services.AddTransient<SuppliersViewModel>();
         services.AddTransient<UsersViewModel>();
+        services.AddSingleton<NavigationService>();
         _services = services.BuildServiceProvider();
 
         _session = _services.GetRequiredService<Session>();
@@ -61,13 +75,7 @@ public partial class App : Application
         }
     }
 
-    public static void ApplyTheme(string theme) =>
-        Current.ThemeMode = theme switch
-        {
-            "Light" => ThemeMode.Light,
-            "Dark" => ThemeMode.Dark,
-            _ => ThemeMode.System,
-        };
+    public static void ApplyTheme(string theme) => BrandTheme.Apply(theme);
 
     private void ShowLogin()
     {
