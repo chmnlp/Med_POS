@@ -9,6 +9,11 @@ public partial class LoginWindow : Window
 {
     private readonly LoginViewModel _vm;
 
+#if DEBUG
+    /// <summary>TEMPORARY: admin password prefilled on the sign-in page in Debug builds. Remove before go-live.</summary>
+    private const string DevAdminPassword = "Preview@2026";
+#endif
+
     /// <summary>Respect "Animation effects" being switched off in Windows settings.</summary>
     private static bool Animate => SystemParameters.ClientAreaAnimation;
 
@@ -29,6 +34,11 @@ public partial class LoginWindow : Window
 
         Loaded += (_, _) =>
         {
+#if DEBUG
+            // Temporary convenience while testing: prefill the admin login (Debug builds only).
+            if (string.IsNullOrEmpty(vm.Username)) vm.Username = "admin";
+            if (vm.Username == "admin") PasswordBox.Password = DevAdminPassword;
+#endif
             PlayEntrance();
             if (string.IsNullOrEmpty(vm.Username)) UsernameBox.Focus();
             else PasswordBox.Focus();
