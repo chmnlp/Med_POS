@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BillKro.Data/BillKro.Data.csproj" />
+    <Project Path="src/BillKro.Desktop/BillKro.Desktop.csproj" />
+    <Project Path="src/BillKro.Server/BillKro.Server.csproj" />
+    <Project Path="src/BillKro.Shared/BillKro.Shared.csproj" />
+    <Project Path="src/BillKro.Sync.Core/BillKro.Sync.Core.csproj" />
+    <Project Path="src/BillKro.Sync.Data/BillKro.Sync.Data.csproj" />
+    <Project Path="src/BillKro.Sync.Parser/BillKro.Sync.Parser.csproj" />
+    <Project Path="src/BillKro.Sync.Service/BillKro.Sync.Service.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BillKro.Tests/BillKro.Tests.csproj" />
+    <Project Path="tests/BillKro.Sync.Tests/BillKro.Sync.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,229 @@
+<UserControl x:Class="BillKro.Desktop.Views.SalesReportsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <Style x:Key="Kpi" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Width" Value="190" />
+            <Setter Property="Margin" Value="0,0,12,12" />
+            <Setter Property="Padding" Value="14,10" />
+        </Style>
+    </UserControl.Resources>
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top">
+            <Border Style="{StaticResource ErrorBanner}" Visibility="{Binding ErrorMessage, Converter={StaticResource HasValueToVisibility}}">
+                <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" />
+            </Border>
+            <Border Style="{StaticResource InfoBanner}" Visibility="{Binding StatusMessage, Converter={StaticResource HasValueToVisibility}}">
+                <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" />
+            </Border>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,-36">
+            <Button Content="Refresh" Tag="&#xE72C;" ContentTemplate="{StaticResource IconContent}" Command="{Binding RefreshCommand}" />
+            <Button Content="Export CSV files…" Tag="&#xE78C;" ContentTemplate="{StaticResource IconContent}" Margin="8,0,0,0" Command="{Binding ExportCommand}" />
+        </StackPanel>
+
+        <TabControl SelectedIndex="{Binding SelectedTab}">
+            <!-- Sales summary -->
+            <TabItem Header="Sales summary">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <TextBlock Text="From" Style="{StaticResource Muted}" Margin="0,0,8,0" />
+                            <DatePicker SelectedDate="{Binding SalesFrom}" Width="140" />
+                            <TextBlock Text="To" Style="{StaticResource Muted}" Margin="12,0,8,0" />
+                            <DatePicker SelectedDate="{Binding SalesTo}" Width="140" />
+                        </StackPanel>
+                        <WrapPanel>
+                            <Border Style="{StaticResource Kpi}"><StackPanel>
+                                <TextBlock Text="NET SALES" Style="{StaticResource Overline}" />
+                                <TextBlock Text="{Binding Sales.Net, StringFormat='₹ {0:N2}'}" FontSize="22" FontWeight="SemiBold" />
+                                <TextBlock Text="after returns" Style="{StaticResource Muted}" FontSize="12" />
+                            </StackPanel></Border>
+                            <Border Style="{StaticResource Kpi}"><StackPanel>
+                                <TextBlock Text="BILLS" Style="{StaticResource Overline}" />
+                                <TextBlock Text="{Binding Sales.Bills}" FontSize="22" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Sales.AverageBill, StringFormat='average ₹ {0:N2}'}" Style="{StaticResource Muted}" FontSize="12" />
+                            </StackPanel></Border>
+                            <Border Style="{StaticResource Kpi}"><StackPanel>
+                                <TextBlock Text="GST COLLECTED" Style="{StaticResource Overline}" />
+                                <TextBlock Text="{Binding Sales.Tax, StringFormat='₹ {0:N2}'}" FontSize="22" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Sales.Taxable, StringFormat='on taxable ₹ {0:N2}'}" Style="{StaticResource Muted}" FontSize="12" />
+                            </StackPanel></Border>
+                            <Border Style="{StaticResource Kpi}"><StackPanel>
+                                <TextBlock Text="DISCOUNT GIVEN" Style="{StaticResource Overline}" />
+                                <TextBlock Text="{Binding Sales.Discount, StringFormat='₹ {0:N2}'}" FontSize="22" FontWeight="SemiBold" />
+                            </StackPanel></Border>
+                            <Border Style="{StaticResource Kpi}"><StackPanel>
+                                <TextBlock Text="RETURNS" Style="{StaticResource Overline}" />
+                                <TextBlock Text="{Binding Sales.ReturnsValue, StringFormat='₹ {0:N2}'}" FontSize="22" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Sales.Returns, StringFormat='{}{0} credit note(s)'}" Style="{StaticResource Muted}" FontSize="12" />
+                            </StackPanel></Border>
+                            <Border Style="{StaticResource Kpi}"><StackPanel>
+                                <TextBlock Text="CANCELLED BILLS" Style="{StaticResource Overline}" />
+                                <TextBlock Text="{Binding Sales.CancelledBills}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource SystemFillColorCriticalBrush}" />
+                                <TextBlock Text="{Binding Sales.CancelledValue, StringFormat='₹ {0:N2}'}" Style="{StaticResource Muted}" FontSize="12" />
+                            </StackPanel></Border>
+                        </WrapPanel>
+
+                        <WrapPanel>
+                            <StackPanel Width="330" Margin="0,0,16,16">
+                                <ContentControl Style="{StaticResource SectionHeader}" Tag="&#xE8C7;" Content="Sales by payment mode" />
+                                <DataGrid ItemsSource="{Binding Sales.ByMode}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" CanUserAddRows="False">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Mode" Binding="{Binding Mode}" Width="*" />
+                                        <DataGridTextColumn Header="Payments" Binding="{Binding Count}" Width="80" ElementStyle="{StaticResource NumberCell}" />
+                                        <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat=N2}" Width="110" ElementStyle="{StaticResource NumberCell}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <ContentControl Style="{StaticResource SectionHeader}" Tag="&#xE8C7;" Content="Received on account" Margin="0,12,0,8" />
+                                <DataGrid ItemsSource="{Binding Sales.ReceiptsByMode}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" CanUserAddRows="False">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Mode" Binding="{Binding Mode}" Width="*" />
+                                        <DataGridTextColumn Header="Receipts" Binding="{Binding Count}" Width="80" ElementStyle="{StaticResource NumberCell}" />
+                                        <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat=N2}" Width="110" ElementStyle="{StaticResource NumberCell}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                            <StackPanel Width="420" Margin="0,0,16,16">
+                                <ContentControl Style="{StaticResource SectionHeader}" Tag="&#xE787;" Content="By day" />
+                                <DataGrid ItemsSource="{Binding Sales.ByDay}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" CanUserAddRows="False" MaxHeight="320">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Day" Binding="{Binding Date, StringFormat=dd-MM-yyyy ddd}" Width="*" />
+                                        <DataGridTextColumn Header="Bills" Binding="{Binding Bills}" Width="60" ElementStyle="{StaticResource NumberCell}" />
+                                        <DataGridTextColumn Header="Sales" Binding="{Binding Sales, StringFormat=N2}" Width="100" ElementStyle="{StaticResource NumberCell}" />
+                                        <DataGridTextColumn Header="Net" Binding="{Binding Net, StringFormat=N2}" Width="100" ElementStyle="{StaticResource NumberCell}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <ContentControl Style="{StaticResource SectionHeader}" Tag="&#xE77B;" Content="By cashier" Margin="0,12,0,8" />
+                                <DataGrid ItemsSource="{Binding Sales.ByCashier}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" CanUserAddRows="False">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Cashier" Binding="{Binding Name}" Width="*" />
+                                        <DataGridTextColumn Header="Bills" Binding="{Binding Bills}" Width="60" ElementStyle="{StaticResource NumberCell}" />
+                                        <DataGridTextColumn Header="Sales" Binding="{Binding Sales, StringFormat=N2}" Width="110" ElementStyle="{StaticResource NumberCell}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                            <StackPanel Width="460" Margin="0,0,16,16">
+                                <ContentControl Style="{StaticResource SectionHeader}" Tag="&#xE9D2;" Content="Top 20 items by value" />
+                                <DataGrid ItemsSource="{Binding Sales.TopItems}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" CanUserAddRows="False">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Item" Binding="{Binding ItemName}" Width="*" />
+                                        <DataGridTextColumn Header="Qty" Binding="{Binding Qty, StringFormat=0.###}" Width="70" ElementStyle="{StaticResource NumberCell}" />
+                                        <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat=N2}" Width="110" ElementStyle="{StaticResource NumberCell}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </WrapPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- GST -->
+            <TabItem Header="GST (GSTR-1 working)">
+                <DockPanel Margin="0,12,0,0">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="From" Style="{StaticResource Muted}" Margin="0,0,8,0" />
+                        <DatePicker SelectedDate="{Binding GstFrom}" Width="140" />
+                        <TextBlock Text="To" Style="{StaticResource Muted}" Margin="12,0,8,0" />
+                        <DatePicker SelectedDate="{Binding GstTo}" Width="140" />
+                        <Button Content="Previous month" Margin="8,0,0,0" Command="{Binding PreviousMonthCommand}" />
+                        <TextBlock Style="{StaticResource Muted}" Margin="24,0,0,0" VerticalAlignment="Center">
+                            Output tax <Run Text="{Binding Gst.OutputTax, Mode=OneWay, StringFormat='₹ {0:N2}'}" FontWeight="SemiBold" /> ·
+                            input tax (purchases) <Run Text="{Binding Gst.InputTax, Mode=OneWay, StringFormat='₹ {0:N2}'}" FontWeight="SemiBold" />
+                        </TextBlock>
+                    </StackPanel>
+                    <TextBlock DockPanel.Dock="Bottom" Style="{StaticResource Muted}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"
+                               Text="Working figures for your GST return, taken from the bills and credit notes in this period. Export the CSV files and give them to your accountant, or enter them in the GST offline tool; check them before filing." />
+                    <TabControl Style="{StaticResource SubTabControl}">
+                        <TabItem Header="B2B (registered)">
+                            <DataGrid ItemsSource="{Binding Gst.B2B}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" CanUserAddRows="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="GSTIN" Binding="{Binding Gstin}" Width="140" />
+                                    <DataGridTextColumn Header="Receiver" Binding="{Binding Name}" Width="*" />
+                                    <DataGridTextColumn Header="Invoice" Binding="{Binding InvoiceNo}" Width="120" />
+                                    <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=dd-MM-yyyy}" Width="90" />
+                                    <DataGridTextColumn Header="Value" Binding="{Binding InvoiceValue, StringFormat=N2}" Width="95" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="POS" Binding="{Binding PlaceOfSupply}" Width="45" />
+                                    <DataGridTextColumn Header="Rate" Binding="{Binding Rate, StringFormat=0.##}" Width="50" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="Taxable" Binding="{Binding Taxable, StringFormat=N2}" Width="95" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="IGST" Binding="{Binding Igst, StringFormat=N2}" Width="80" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="CGST" Binding="{Binding Cgst, StringFormat=N2}" Width="80" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="SGST" Binding="{Binding Sgst, StringFormat=N2}" Width="80" ElementStyle="{StaticResource NumberCell}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                        <TabItem Header="B2C (unregistered)">
+                            <DataGrid ItemsSource="{Binding Gst.B2CS}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" CanUserAddRows="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Place of supply" Binding="{Binding PlaceOfSupply}" Width="120" />
+                                    <DataGridTextColumn Header="Rate" Binding="{Binding Rate, StringFormat=0.##}" Width="70" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="Taxable" Binding="{Binding Taxable, StringFormat=N2}" Width="130" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="IGST" Binding="{Binding Igst, StringFormat=N2}" Width="110" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="CGST" Binding="{Binding Cgst, StringFormat=N2}" Width="110" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="SGST" Binding="{Binding Sgst, StringFormat=N2}" Width="110" ElementStyle="{StaticResource NumberCell}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                        <TabItem Header="HSN summary">
+                            <DataGrid ItemsSource="{Binding Gst.Hsn}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" CanUserAddRows="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="HSN" Binding="{Binding Hsn}" Width="110" />
+                                    <DataGridTextColumn Header="UQC" Binding="{Binding Uqc}" Width="80" />
+                                    <DataGridTextColumn Header="Qty" Binding="{Binding Qty, StringFormat=0.###}" Width="90" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="Rate" Binding="{Binding Rate, StringFormat=0.##}" Width="60" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="Taxable" Binding="{Binding Taxable, StringFormat=N2}" Width="120" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="IGST" Binding="{Binding Igst, StringFormat=N2}" Width="100" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="CGST" Binding="{Binding Cgst, StringFormat=N2}" Width="100" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="SGST" Binding="{Binding Sgst, StringFormat=N2}" Width="100" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="Total" Binding="{Binding Total, StringFormat=N2}" Width="*" ElementStyle="{StaticResource NumberCell}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                        <TabItem Header="Credit notes">
+                            <DataGrid ItemsSource="{Binding Gst.CreditNotes}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" CanUserAddRows="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="GSTIN" Binding="{Binding Gstin}" Width="140" />
+                                    <DataGridTextColumn Header="Party" Binding="{Binding Name}" Width="*" />
+                                    <DataGridTextColumn Header="Note" Binding="{Binding NoteNo}" Width="120" />
+                                    <DataGridTextColumn Header="Date" Binding="{Binding NoteDate, StringFormat=dd-MM-yyyy}" Width="90" />
+                                    <DataGridTextColumn Header="Against" Binding="{Binding InvoiceNo}" Width="120" />
+                                    <DataGridTextColumn Header="Rate" Binding="{Binding Rate, StringFormat=0.##}" Width="50" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="Taxable" Binding="{Binding Taxable, StringFormat=N2}" Width="95" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="IGST" Binding="{Binding Igst, StringFormat=N2}" Width="80" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="CGST" Binding="{Binding Cgst, StringFormat=N2}" Width="80" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="SGST" Binding="{Binding Sgst, StringFormat=N2}" Width="80" ElementStyle="{StaticResource NumberCell}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                        <TabItem Header="Documents">
+                            <DataGrid ItemsSource="{Binding Gst.Documents}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" CanUserAddRows="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Nature of document" Binding="{Binding Nature}" Width="*" />
+                                    <DataGridTextColumn Header="From" Binding="{Binding From}" Width="140" />
+                                    <DataGridTextColumn Header="To" Binding="{Binding To}" Width="140" />
+                                    <DataGridTextColumn Header="Total" Binding="{Binding Total}" Width="80" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="Cancelled" Binding="{Binding Cancelled}" Width="90" ElementStyle="{StaticResource NumberCell}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                        <TabItem Header="Purchases (input tax)">
+                            <DataGrid ItemsSource="{Binding Gst.Purchases}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" CanUserAddRows="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Supplier GSTIN" Binding="{Binding SupplierGstin}" Width="140" />
+                                    <DataGridTextColumn Header="Supplier" Binding="{Binding SupplierName}" Width="*" />
+                                    <DataGridTextColumn Header="Document" Binding="{Binding Document}" Width="130" />
+                                    <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=dd-MM-yyyy}" Width="90" />
+                                    <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="90" />
+                                    <DataGridTextColumn Header="Taxable" Binding="{Binding Taxable, StringFormat=N2}" Width="100" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="IGST" Binding="{Binding Igst, StringFormat=N2}" Width="85" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="CGST" Binding="{Binding Cgst, StringFormat=N2}" Width="85" ElementStyle="{StaticResource NumberCell}" />
+                                    <DataGridTextColumn Header="SGST" Binding="{Binding Sgst, StringFormat=N2}" Width="85" ElementStyle="{StaticResource NumberCell}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                    </TabControl>
+                </DockPanel>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</UserControl>

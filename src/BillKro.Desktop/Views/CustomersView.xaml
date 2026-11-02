@@ -1,0 +1,85 @@
+<UserControl x:Class="BillKro.Desktop.Views.CustomersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:BillKro.Desktop.Views">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Margin="0,0,0,12">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Content="New customer" Tag="&#xE710;" ContentTemplate="{StaticResource IconContent}"
+                        Style="{DynamicResource AccentButtonStyle}" Command="{Binding NewCommand}" ToolTip="F2" />
+                <Button Content="Edit" Tag="&#xE70F;" ContentTemplate="{StaticResource IconContent}" Margin="8,0,0,0"
+                        Command="{Binding EditCommand}" ToolTip="Enter" />
+                <Button Content="Deactivate" Tag="&#xE74D;" ContentTemplate="{StaticResource IconContent}" Margin="8,0,0,0"
+                        Command="{Binding DeactivateCommand}" ToolTip="Delete (managers)" />
+                <Button Content="Receive payment" Tag="&#xE8C7;" ContentTemplate="{StaticResource IconContent}" Margin="8,0,0,0"
+                        Command="{Binding ReceivePaymentCommand}" />
+                <Button Content="Statement" Tag="&#xE8A5;" ContentTemplate="{StaticResource IconContent}" Margin="8,0,0,0"
+                        Command="{Binding StatementCommand}" />
+                <Button Content="Refresh" Tag="&#xE72C;" ContentTemplate="{StaticResource IconContent}" Margin="8,0,0,0"
+                        Command="{Binding RefreshCommand}" ToolTip="F5" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Grid Width="340">
+                    <TextBox x:Name="SearchBox" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Padding="34,6,10,6" AutomationProperties.Name="Search" />
+                    <TextBlock Style="{StaticResource SearchGlyph}" />
+                    <TextBlock Text="Search name, code, phone or GSTIN  (Ctrl+F)" Style="{StaticResource Muted}"
+                               Margin="36,0,12,0" IsHitTestVisible="False"
+                               Visibility="{Binding Text, ElementName=SearchBox, Converter={StaticResource NoValueToVisibility}}" />
+                </Grid>
+                <CheckBox Content="Show inactive" Margin="16,0,0,0" IsChecked="{Binding IncludeInactive}" />
+            </StackPanel>
+        </DockPanel>
+
+        <Border Grid.Row="1" Style="{StaticResource ErrorBanner}"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource HasValueToVisibility}}">
+            <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" />
+        </Border>
+
+        <DataGrid Grid.Row="2" x:Name="ListGrid" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}"
+                  AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single" HeadersVisibility="Column"
+                  CanUserAddRows="False" CanUserDeleteRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="90" />
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" />
+                <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="120" />
+                <DataGridTemplateColumn Header="Type" Width="110">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid Margin="4,0" VerticalAlignment="Center">
+                                <Border x:Name="CRetail" Style="{StaticResource ToneChip}" Visibility="Collapsed"><TextBlock Text="{Binding Type}" /></Border>
+                                <Border x:Name="CWholesale" Style="{StaticResource ChipBlue}" Visibility="Collapsed"><TextBlock Text="{Binding Type}" /></Border>
+                                <Border x:Name="CHospital" Style="{StaticResource ChipPurple}" Visibility="Collapsed"><TextBlock Text="{Binding Type}" /></Border>
+                            </Grid>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding Type}" Value="Retail"><Setter TargetName="CRetail" Property="Visibility" Value="Visible" /></DataTrigger>
+                                <DataTrigger Binding="{Binding Type}" Value="Wholesale"><Setter TargetName="CWholesale" Property="Visibility" Value="Visible" /></DataTrigger>
+                                <DataTrigger Binding="{Binding Type}" Value="Hospital"><Setter TargetName="CHospital" Property="Visibility" Value="Visible" /></DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="GSTIN" Binding="{Binding Gstin}" Width="150" />
+                <DataGridTextColumn Header="Credit limit" Binding="{Binding CreditLimit, StringFormat=N2}" Width="110" ElementStyle="{StaticResource NumberCell}" />
+                <DataGridTextColumn Header="Days" Binding="{Binding CreditDays}" Width="60" ElementStyle="{StaticResource NumberCell}" />
+                <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="2*" />
+                <DataGridTemplateColumn Header="" Width="90" CellTemplate="{StaticResource InactiveChipCell}" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <views:EmptyState Grid.Row="2" Glyph="&#xE716;" Title="No customers found" Hint="Add regular and credit customers with New customer (F2). Walk-in sales need no customer." Visibility="{Binding ShowEmpty, Converter={StaticResource BoolToVisibility}}" />
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <ProgressBar IsIndeterminate="True" Width="80" Height="4" Margin="0,0,16,0"
+                         Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+            <TextBlock Text="{Binding PageInfo}" Style="{StaticResource Muted}" Margin="0,0,12,0" />
+            <Button Tag="&#xE76B;" ContentTemplate="{StaticResource IconContent}" Content="Previous" Command="{Binding PreviousPageCommand}" />
+            <Button Tag="&#xE76C;" ContentTemplate="{StaticResource IconContent}" Content="Next" Margin="8,0,0,0" Command="{Binding NextPageCommand}" />
+        </StackPanel>
+    </Grid>
+</UserControl>

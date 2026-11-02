@@ -1,0 +1,18 @@
+<UserControl x:Class="BillKro.Desktop.Views.Forms.HeldBillsForm"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="560">
+    <ListBox ItemsSource="{Binding Bills}" SelectedItem="{Binding Selected}" Height="320">
+        <ListBox.ItemTemplate>
+            <DataTemplate>
+                <StackPanel Margin="4">
+                    <TextBlock Text="{Binding Label}" FontWeight="SemiBold" />
+                    <TextBlock Style="{StaticResource Muted}" FontSize="12">
+                        Held by <Run Text="{Binding CreatedBy, Mode=OneWay}" /> at
+                        <Run Text="{Binding CreatedAt, Mode=OneWay, StringFormat=dd-MM HH:mm}" />
+                    </TextBlock>
+                </StackPanel>
+            </DataTemplate>
+        </ListBox.ItemTemplate>
+    </ListBox>
+</UserControl>
